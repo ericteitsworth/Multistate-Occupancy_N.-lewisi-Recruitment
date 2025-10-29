@@ -1,0 +1,52 @@
+Cover Availability, Riparian Zones, and Urban Flash-flooding Limit Recruitment in a Long-lived Aquatic Species
+
+E.W. Teitsworth, J.G. Hall, J.M. Archambault, N.J. Hostetter, B.R. Goldstein, W.J. Humphries, and K. Pacifici
+
+***************
+
+This folder contains five files in addition to this metadata text file:
+1) SiteData.csv
+2) ObsData.csv
+3) DetectionHistory.csv
+4) ModelScript.R
+5) PlottingScript.R
+
+***************
+
+SiteData.csv
+
+This .csv file contains the site-specific habitat covariates of interest that are associated with each of the 176 sites in the study. These habitat covariates are scores taken directly from rapid habitat assessments that we performed, using protocols from the NC Department of Environmental Quality Biological Assessment Unit. Riffle scoring was part of these assessments, and is accounted for in the total score, but it was removed from the analysis because this metric was only scored at the piedmont sites and not the coastal plain.
+
+-Site #
+-Bottom Substrate Quality Score
+-Cover Availability Score
+-Channel Modification Score (scaled to account for scoring differences between piedmont and coastal plain)
+-Pool Variety Score
+-Bank Stability Score (scaled to account for scoring differences between piedmont and coastal plain)
+-Light Penetration Score
+-Riparian Zone Score
+-Total Score
+
+*****************
+
+ObsData.csv
+
+This .csv file contains the visit-specific covariates of daily mean stream discharge (m3/s) and bait age (in days), formatted in two columns by site, year (season), and visit.
+
+*****************
+
+DetectionHistory.csv
+
+This .csv file contains the detection history for each site, presented continuously from Day1 to Day20, where wach day was a unique visit to the 10 traps. 0 = absent, 1 = adult detected, 2 = juvenile detected, N/A (no value) = site not surveyed.
+
+*****************
+
+ModelScript.R
+
+This .R script file contains annotated code and packages that were used to format the raw data, and fit a multistate occupancy model within a Bayesian framework, via JAGS using the jagsUI package. 
+
+*****************
+
+PlottingScript.R
+
+This .R script file contains annotated code and packages that were used to format the model results and create visual plots to enhance interpretation of the covariate effects, especially for supported and weakly supported effects.
