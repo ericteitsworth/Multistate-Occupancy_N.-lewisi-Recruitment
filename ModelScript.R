@@ -1,3 +1,4 @@
+#Benthic Cover, Riparian Zones, and Flashy Urban Streams Limit Juvenile Recruitment of a Long-lived Aquatic Salamander
 #Teitsworth et al. 
 
 
@@ -76,6 +77,95 @@ d <- array(discharge.scaled, dim = c(nsites, nsurveys), dimnames = list(1:nsites
 d2<- array(d2.scaled, dim = c(nsites, nsurveys), dimnames = list(1:nsites, 1:nsurveys))
 b <- array(bait.scaled, dim=c(nsites, nsurveys), dimnames = list(1:nsites, 1:nsurveys))
 
+# --------------------------------------------------
+## Explore covariate data 
+## --------------------------------------------------
+
+
+## Put all 9 covariates into a named list
+covariates <- list(
+  "Total"          = ts.scaled,
+  "Substrate"      = sub.scaled,
+  "Cover"          = cover.scaled,
+  "Canopy"         = can.scaled,
+  "Flashiness"     = tq.scaled,
+  "Pool Variety"   = pv.scaled,
+  "Riparian Zone"  = rz.scaled,
+  "Bank Stability" = bs,
+  "Channel Modification"  = cm
+)
+
+## Convert to data frame for correlation analysis
+cov_df <- as.data.frame(covariates)
+
+## --------------------------------------------------
+## Histograms 
+## --------------------------------------------------
+
+par(
+  mfrow = c(3, 3),
+  mar   = c(4, 4, 2, 1),
+  oma   = c(0, 0, 1, 0)
+)
+
+for (nm in names(covariates)) {
+  
+  x <- covariates[[nm]]
+  x <- x[!is.na(x)]
+  
+  ## proportion of sites with standardized values > 0
+  prop_gt0 <- mean(x > 0)
+  
+  hist(
+    x,
+    main   = nm,
+    xlab   = "",
+    ylab   = "Frequency",
+    col    = "gray90",
+    border = "white"
+  )
+  
+  ## add text in upper-left corner
+  usr <- par("usr")
+  text(
+    x = usr[1] + 0.03 * diff(usr[1:2]),
+    y = usr[4] - 0.08 * diff(usr[3:4]),
+    labels = paste0("P(>0) = ", round(prop_gt0, 2)),
+    adj = c(0, 1),
+    cex = 0.9
+  )
+}
+
+mtext("Histograms of Site Covariates", outer = TRUE, cex = 1.2)
+
+## Reset plotting layout
+par(mfrow = c(1, 1))
+
+## --------------------------------------------------
+## Correlation plot 
+## --------------------------------------------------
+
+## correlation matrix using pairwise complete observations
+cor_mat <- cor(cov_df, use = "pairwise.complete.obs")
+
+## display rounded matrix in console
+print(round(cor_mat, 2))
+
+## visual correlation plot
+corrplot::corrplot(
+  cor_mat,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  tl.col = "black",
+  tl.srt = 45,
+  number.cex = 0.7
+)
+
+
+## --------------------------------------------------
+## Multistate Model
+## --------------------------------------------------
 
 # Bundle data
 str(bdata <- list(y = detdata, nsites = nsites, nsurveys = nsurveys,
@@ -83,11 +173,7 @@ str(bdata <- list(y = detdata, nsites = nsites, nsurveys = nsurveys,
                   tq=tq.scaled,pv=pv.scaled, cm=cm,
                   d=d, d2=d2, b=b))
 
-
-
-#### Model
 # In this model, we are including the same covs in both psi and r
-
 cat(file = "model.txt", "
 model {
 
@@ -227,9 +313,9 @@ zst <- rep(3, nrow(bdata$y)) # Initialize at highest possible state
 inits <- function(){list(z = zst)}
 
 # Parameters monitored (could add "z")
-params <- c("mean.psi","beta.lpsi[1]", "beta.lpsi[2]","beta.lpsi[3]","beta.lpsi[4]","beta.lpsi[5]","beta.lpsi[6]","beta.lpsi[7]","beta.lpsi[8]",
-            "mean.r","beta.lr[1]", "beta.lr[2]","beta.lr[3]","beta.lr[4]","beta.lr[5]","beta.lr[6]","beta.lr[7]","beta.lr[8]",
-            "mean.p2", "alpha.lp32", "alpha.lp33",
+params <- c("aplha.lpsi","mean.psi","beta.lpsi[1]", "beta.lpsi[2]","beta.lpsi[3]","beta.lpsi[4]","beta.lpsi[5]","beta.lpsi[6]","beta.lpsi[7]","beta.lpsi[8]",
+            "alpha.lr","mean.r","beta.lr[1]", "beta.lr[2]","beta.lr[3]","beta.lr[4]","beta.lr[5]","beta.lr[6]","beta.lr[7]","beta.lr[8]",
+            "alpha.lp2","mean.p2", "alpha.lp32", "alpha.lp33",
             "beta.lp2[1]", "beta.lp2[2]", "beta.lp2[3]",
             "beta.lp32[1]", "beta.lp32[2]", "beta.lp32[3]",
             "beta.lp33[1]", "beta.lp33[2]", "beta.lp33[3]",
